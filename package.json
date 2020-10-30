@@ -1,0 +1,38 @@
+{
+  "name": "@ecmaservegames/host",
+  "version": "0.0.0",
+  "description": "A host server for a game.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "nyc cucumber-js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EcmaserveGames/host.git"
+  },
+  "keywords": [
+    "board",
+    "games",
+    "board",
+    "game",
+    "host",
+    "server",
+    "turn-based"
+  ],
+  "author": "Ryan Hafer <ryan@theplasticbrick.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/EcmaserveGames/host/issues"
+  },
+  "homepage": "https://github.com/EcmaserveGames/host#readme",
+  "dependencies": {
+    "koa": "^2.13.0",
+    "koa-websocket": "^6.0.0",
+    "protobufjs": "^6.10.1"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^7.0.0-rc.0",
+    "nyc": "^15.1.0",
+    "prettier": "2.1.2"
+  }
+}
