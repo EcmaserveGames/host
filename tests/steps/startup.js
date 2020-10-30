@@ -1,10 +1,7 @@
-const { Given, Then }  = require('@cucumber/cucumber');
+const { Given, Then } = require('@cucumber/cucumber')
 
-Given('server is running', () => {
-});
+Given('server is running', () => {})
 
-Then('a websocket is available', () => {
-});
+Then('a websocket is available', () => {})
 
-hen('an API is available', function () {
-});
+hen('an API is available', function () {})
