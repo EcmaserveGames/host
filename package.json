@@ -4,7 +4,8 @@
   "description": "A host server for a game.",
   "main": "src/index.js",
   "scripts": {
-    "test": "nyc cucumber-js"
+    "start": "node test-game",
+    "test": "nyc cucumber-js --publish-quiet"
   },
   "repository": {
     "type": "git",
@@ -28,7 +29,8 @@
   "dependencies": {
     "koa": "^2.13.0",
     "koa-websocket": "^6.0.0",
-    "protobufjs": "^6.10.1"
+    "protobufjs": "^6.10.1",
+    "server-destroy": "^1.0.1"
   },
   "devDependencies": {
     "@cucumber/cucumber": "^7.0.0-rc.0",
