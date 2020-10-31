@@ -1,23 +1,14 @@
 const { Given, Then, AfterAll } = require('@cucumber/cucumber')
-const { defaultSocketPort } = require('../../src')
+
 const http = require('http')
-const { resolve } = require('path')
+const { createSocketClientOrDefault, runGameOrDefault } = require('./setup')
 
-let game
-
-Given('server is running', () => {
-  game = require('../../test-game')
+Given('server is running', async () => {
+  await runGameOrDefault()
 })
 
 Then('a websocket is available', async () => {
-  await new Promise((resolve, reject) => {
-    const net = require('net')
-    const client = net.createConnection({ port: defaultSocketPort }, () => {
-      resolve()
-    })
-    client.on('end', reject)
-    client.on('error', reject)
-  })
+  await createSocketClientOrDefault()
 })
 
 Then('an API is available', async () => {
@@ -39,8 +30,6 @@ Then('an API is available', async () => {
   })
 })
 
-AfterAll(() => {
-  if (game) {
-    game.shutdown()
-  }
+Given('I am connected to a socket', async function () {
+  return await createSocketClientOrDefault()
 })

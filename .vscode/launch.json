@@ -5,11 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch via NPM",
+            "name": "Debug Tests",
             "request": "launch",
             "runtimeArgs": [
                 "run-script",
-                "debug"
+                "test"
             ],
             "runtimeExecutable": "npm",
             "skipFiles": [

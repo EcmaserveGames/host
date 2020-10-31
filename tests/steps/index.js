@@ -1,5 +1,9 @@
-const startup = require('./startup');
+const startup = require('./startup')
+const action = require('./action')
+const state = require('./state')
 
 module.exports = {
-    ...startup
+  ...startup,
+  ...action,
+  ...state,
 }
