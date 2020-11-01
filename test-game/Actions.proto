@@ -3,15 +3,19 @@ package testgame;
 syntax = "proto3";
 
 message RollDice {
-    optional bool dice1 = 1;
-    optional bool dice2 = 2;
-    optional bool dice3 = 3;
-    optional bool dice4 = 4;
-    optional bool dice5 = 5;
+    bool dice1 = 1;
+    bool dice2 = 2;
+    bool dice3 = 3;
+    bool dice4 = 4;
+    bool dice5 = 5;
+}
+
+message CompleteTurn {
 }
 
 message Actions {
     oneof Action {
         RollDice roll_dice = 1;
+        CompleteTurn complete_turn = 2;
     }
 }

@@ -1,14 +1,15 @@
-const { Given, Then, AfterAll } = require('@cucumber/cucumber')
+const { Given, Then } = require('@cucumber/cucumber')
 
 const http = require('http')
-const { createSocketClientOrDefault, runGameOrDefault } = require('./setup')
+const { gameInstance, createSocketClientForPathAsync } = require('./setup')
 
 Given('server is running', async () => {
-  await runGameOrDefault()
+  if (!gameInstance) throw new Error('Game not running yet')
 })
 
 Then('a websocket is available', async () => {
-  await createSocketClientOrDefault()
+  const { promise } = createSocketClientForPathAsync('/')
+  await promise
 })
 
 Then('an API is available', async () => {
@@ -28,8 +29,4 @@ Then('an API is available', async () => {
       }
     )
   })
-})
-
-Given('I am connected to a socket', async function () {
-  return await createSocketClientOrDefault()
 })

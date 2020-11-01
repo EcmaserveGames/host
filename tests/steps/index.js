@@ -1,9 +1,11 @@
-const startup = require('./startup')
+const runtime = require('./runtime')
 const action = require('./action')
 const state = require('./state')
+const rule = require('./rule')
 
 module.exports = {
-  ...startup,
+  ...runtime,
   ...action,
   ...state,
+  ...rule,
 }

@@ -4,5 +4,5 @@ Feature: Actions
     I must be able to receive actions from the game participant
 
     Scenario: An action can be sent to the game server
-        Given I am connected to a socket
+        Given participant is connected to an actions socket
         Then an action may be sent

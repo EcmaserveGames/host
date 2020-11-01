@@ -8,6 +8,7 @@ const {
 } = require('./loadProtobufAsync')
 const { performAction } = require('./performAction')
 const Router = require('@koa/router')
+const { Rule, RulesPipeline } = require('./rules')
 
 const defaultApiPort = 4443
 const defaultSocketPort = 5252
@@ -27,11 +28,22 @@ class GameServer {
     current: undefined,
     connections: [],
   }
+  __rules = {
+    /** @type {Rule[]} */
+    ruleset: [],
+    /** @type {RulesPipeline} */
+    pipeline: undefined,
+  }
+
+  __running = false
 
   constructor() {
     const socketRouter = new Router()
     socketRouter.all('/actions', ({ websocket }) => {
-      websocket.on('message', performAction.bind(this, this.__actions.package))
+      websocket.on(
+        'message',
+        performAction.bind(this, websocket, this.__actions.package)
+      )
     })
     socketRouter.all('/state', ({ websocket }) => {
       this.__state.connections.push(websocket)
@@ -62,6 +74,14 @@ class GameServer {
     return this
   }
 
+  /**
+   * @param  {...Rule} rules
+   */
+  useRules(...rules) {
+    this.__rules.ruleset = this.__rules.ruleset.concat(rules)
+    return this
+  }
+
   useState(protoFilename, packageName, initialValue) {
     this.__state.resolver = () =>
       loadStateAsync(protoFilename, packageName).then((State) => {
@@ -73,21 +93,32 @@ class GameServer {
     return this
   }
 
-  shutdown() {
-    this.__servers.forEach((s) => s.destroy())
+  async shutdown() {
+    const closeOperations = this.__servers.map((s) => {
+      return new Promise((resolve) => {
+        s.on('close', resolve)
+        s.destroy()
+      })
+    })
+    await Promise.all(closeOperations)
+    this.__running = false
   }
 
   async run() {
+    this.__rules.pipeline = new RulesPipeline(this.__rules.ruleset)
     // Run before getting into type definitions specific to the game implementation
     await Promise.all(this.__actions.orderProtoFileResolvers || [])
     // TODO: Could be run in parallel
     this.__actions.package = await this.__actions.resolver()
     this.__state.definition = await this.__state.resolver()
+    // Setup a new game state
+    this.__state.current = this.__state.initial
     this.__servers.push(
       this.__sockets.listen(this.__socketPort),
       this.__sockets.listen(this.__apiPort)
     )
     this.__servers.forEach((s) => enableDestroy(s))
+    this.__running = true
     return this
   }
 }

@@ -1,19 +1,26 @@
-const { Then } = require('@cucumber/cucumber')
+const { Given, Then } = require('@cucumber/cucumber')
 const { createSocketClientForPathAsync } = require('./setup')
 const protobuf = require('protobufjs')
 const path = require('path')
+/** FOR TYPES ONLY */
+const WebSocket = require('ws')
+const { loadActionsAsync } = require('../../src/loadProtobufAsync')
+
+/** @type {WebSocket} */
+let actionsSocket
+
+Given('participant is connected to an actions socket', async function () {
+  const { client, promise } = createSocketClientForPathAsync('actions')
+  actionsSocket = client
+  await promise
+})
 
 Then('an action may be sent', async function () {
-  const client = await createSocketClientForPathAsync('actions')
-  const actions = await new Promise((resolve, reject) => {
-    protobuf.load(
-      path.resolve(__dirname, '../../test-game/Actions.proto'),
-      (err, root) => {
-        if (err) return reject(err)
-        resolve(root.lookupType('testgame.Actions'))
-      }
-    )
-  })
+  const Actions = await loadActionsAsync(
+    path.resolve(__dirname, '../../test-game/Actions.proto'),
+    'testgame'
+  )
+
   const action = {
     rollDice: {
       dice1: true,
@@ -23,12 +30,16 @@ Then('an action may be sent', async function () {
       dice5: true,
     },
   }
-  const error = actions.verify(action)
+  const error = Actions.verify(action)
   if (error) {
     throw error
   }
 
-  let message = actions.create(action)
-  let buffer = actions.encode(message).finish()
-  client.send(buffer)
+  let message = Actions.create(action)
+  let buffer = Actions.encode(message).finish()
+  actionsSocket.send(buffer)
 })
+
+module.exports = {
+  getActionsSocket: () => actionsSocket,
+}

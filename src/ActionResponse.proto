@@ -1,0 +1,14 @@
+// awesome.proto
+package ecmaservegames.host;
+syntax = "proto3";
+
+message RuleResult
+{
+    string name = 1;
+    bool result = 2;
+}
+
+message ActionResponse {
+    bool accepted = 1;
+    repeated RuleResult rule_results = 2;
+}

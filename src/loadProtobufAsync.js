@@ -1,3 +1,4 @@
+const path = require('path')
 const protobuf = require('protobufjs')
 
 const loadProtobufAsync = (path) =>
@@ -7,6 +8,15 @@ const loadProtobufAsync = (path) =>
       resolve(root)
     })
   })
+
+let actionResponseResolver
+async function loadActionResponseAsync() {
+  actionResponseResolver =
+    actionResponseResolver ||
+    loadProtobufAsync(path.resolve(__dirname, './ActionResponse.proto'))
+  const root = await actionResponseResolver
+  return root.lookupType('ecmaservegames.host.ActionResponse')
+}
 
 const loadStateAsync = async (path, package) => {
   const root = await loadProtobufAsync(path)
@@ -55,6 +65,7 @@ message Actions {
 
 module.exports = {
   loadProtobufAsync,
+  loadActionResponseAsync,
   loadActionsAsync,
   loadStateAsync,
 }

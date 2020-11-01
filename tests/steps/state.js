@@ -2,18 +2,29 @@ const { Given, When, Then } = require('@cucumber/cucumber')
 const { createSocketClientForPathAsync } = require('./setup')
 const protobuf = require('protobufjs')
 const path = require('path')
+/** FOR TYPES ONLY */
+const WebSocket = require('ws')
 
+let firstGameState
 let lastGameState
+/** @type {WebSocket} */
+let stateSocket
 
 Given('the client is receiving game state messages', async () => {
-  const client = await createSocketClientForPathAsync('state')
-  client.on('message', function (message) {
+  const { client, promise } = createSocketClientForPathAsync('state')
+  stateSocket = client
+  stateSocket.on('message', function (message) {
+    if (!firstGameState) {
+      firstGameState = message
+    }
     lastGameState = message
   })
+  await promise
 })
 
 When('an action is performed', async function () {
-  const client = await createSocketClientForPathAsync('actions')
+  const { promise } = await createSocketClientForPathAsync('actions')
+  const client = await promise
   const actions = await new Promise((resolve, reject) => {
     protobuf.load(
       path.resolve(__dirname, '../../test-game/Actions.proto'),
@@ -38,10 +49,17 @@ Then('the game state is emitted on all connections', function () {
   let waited = 0
   const interval = setInterval(() => {
     waited += 2
-    if (waited > 1000 && !lastGameState) {
+    const gameStateChanged = firstGameState !== lastGameState
+    if (waited > 1000 && !gameStateChanged) {
       throw new Error('there is no last game state')
-    } else if (lastGameState) {
+    } else if (gameStateChanged) {
       clearInterval(interval)
     }
   }, 2)
 })
+
+module.exports = {
+  getInitialGameStateBuffer: () => firstGameState,
+  getLastGameStateBuffer: () => lastGameState,
+  getStateSocket: () => stateSocket,
+}
