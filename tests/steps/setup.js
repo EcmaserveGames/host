@@ -2,7 +2,7 @@ const { defaultSocketPort } = require('../../src')
 const WebSocket = require('ws')
 const { After, Before } = require('@cucumber/cucumber')
 /** ONLY FOR TYPE INFORMATION */
-const { createGameServer } = require('../../test-game/game')
+const { createGameServer } = require('../test-game/game')
 
 let gameInstance = createGameServer()
 

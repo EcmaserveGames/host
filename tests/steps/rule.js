@@ -19,7 +19,7 @@ const getNextActionResponsePromise = () => {
 
 async function getGameStateFromBuffer(buffer) {
   const GameState = await loadStateAsync(
-    path.resolve(__dirname, '../../test-game/State.proto'),
+    path.resolve(__dirname, '../test-game/State.proto'),
     'testgame'
   )
   return GameState.decode(buffer)
@@ -30,7 +30,7 @@ let startingState
 When('a game participant performs an action', async function () {
   startingState = getLastGameStateBuffer()
   const Actions = await loadActionsAsync(
-    path.resolve(__dirname, '../../test-game/Actions.proto'),
+    path.resolve(__dirname, '../test-game/Actions.proto'),
     'testgame'
   )
   const rollDiceAction = Actions.create({
@@ -71,7 +71,7 @@ When(
   async function () {
     startingState = getLastGameStateBuffer()
     const Actions = await loadActionsAsync(
-      path.resolve(__dirname, '../../test-game/Actions.proto'),
+      path.resolve(__dirname, '../test-game/Actions.proto'),
       'testgame'
     )
     const message = Actions.create({

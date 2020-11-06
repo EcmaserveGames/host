@@ -1,4 +1,4 @@
-const { Mechanic } = require('../src/mechanics')
+const { Mechanic } = require('../../src/mechanics')
 
 const DiceRoll = Mechanic.create('rollDice')
   .forActions('rollDice')

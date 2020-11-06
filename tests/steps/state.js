@@ -27,7 +27,7 @@ When('an action is performed', async function () {
   const client = await promise
   const actions = await new Promise((resolve, reject) => {
     protobuf.load(
-      path.resolve(__dirname, '../../test-game/Actions.proto'),
+      path.resolve(__dirname, '../test-game/Actions.proto'),
       (err, root) => {
         if (err) return reject(err)
         resolve(root.lookupType('testgame.Actions'))

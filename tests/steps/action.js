@@ -16,7 +16,7 @@ Given('participant is connected to an actions socket', async function () {
 
 Then('an action may be sent', async function () {
   const Actions = await loadActionsAsync(
-    path.resolve(__dirname, '../../test-game/Actions.proto'),
+    path.resolve(__dirname, '../test-game/Actions.proto'),
     'testgame'
   )
 

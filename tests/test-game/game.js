@@ -1,4 +1,4 @@
-const { GameServer } = require('../src')
+const { GameServer } = require('../../src')
 const path = require('path')
 const { DiceRoll } = require('./mechanics')
 const { ClockWiseTurnOrder, MustRollAllDiceOncePerTurn } = require('./rules')

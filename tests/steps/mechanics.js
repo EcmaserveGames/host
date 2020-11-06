@@ -17,7 +17,7 @@ Then('the game mechanic is carried out', async function () {
   await getNextActionResponsePromise()
   const lastState = getLastGameStateBuffer()
   const State = await loadStateAsync(
-    path.resolve(__dirname, '../../test-game/State.proto'),
+    path.resolve(__dirname, '../test-game/State.proto'),
     'testgame'
   )
   const state = State.decode(lastState)

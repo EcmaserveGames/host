@@ -1,4 +1,4 @@
-const { Rule } = require('../../src/rules')
+const { Rule } = require('../../../src/rules')
 
 const rule = new Rule('clockWiseTurnOrder')
 rule.forActions('completeTurn')
