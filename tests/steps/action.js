@@ -1,6 +1,5 @@
 const { Given, Then } = require('@cucumber/cucumber')
 const { createSocketClientForPathAsync } = require('./setup')
-const protobuf = require('protobufjs')
 const path = require('path')
 /** FOR TYPES ONLY */
 const WebSocket = require('ws')

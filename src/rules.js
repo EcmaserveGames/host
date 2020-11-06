@@ -7,7 +7,7 @@
  * @callback GameStateMutationCallback
  * @param {any} state
  * @return {void|Promise<void>}
- *
+ *s
  * Allows mutation of the game state
  * @callback  MutateGameState
  * @param {GameStateMutationCallback} mutation

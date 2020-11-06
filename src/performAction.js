@@ -1,4 +1,5 @@
 const { loadActionResponseAsync } = require('./loadProtobufAsync')
+const { __applyMechanicsToState } = require('./mechanics')
 
 async function createActionResponse(accepted, ruleResults) {
   const ActionResponse = await loadActionResponseAsync()
@@ -12,19 +13,21 @@ async function createActionResponse(accepted, ruleResults) {
 /**
  * @this {import("./").GameServer} the instance of game server
  * @param {WebSocket} websocket The websocket that the action was received on
- * @param {*} Actions the protobuf Actions type
+ * @param {*} actions the protobuf Actions type
  * @param {*} binary the binary message data
  */
-async function performAction(websocket, Actions, binary) {
-  const action = Actions.decode(binary)
+async function performAction(websocket, actions, binary) {
+  const Actions = actions.decode(binary)
   let state =
     this.__state.current ||
     this.__state.initial ||
     this.__state.definition.create()
   /// Run Rules
-  const rules = await this.__rules.pipeline.run(action, state)
+  const rules = await this.__rules.pipeline.run(Actions, state)
   const accepted = rules.ruleResults.every((r) => r.result)
   if (accepted) {
+    state = await __applyMechanicsToState(Actions, state, this.__mechanics)
+    // Run the rule specific mutations
     state = await rules.performMutations(state)
   }
 

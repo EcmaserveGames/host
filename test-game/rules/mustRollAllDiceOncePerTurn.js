@@ -4,7 +4,6 @@ const rule = new Rule('mustRollOncePerTurn')
 rule.forActions('completeTurn', 'rollDice')
 rule.use(({ actions, gameState, mutate }) => {
   if (actions.rollDice) {
-    // TODO this should be a basic game mechanic manipulating
     mutate((state) => {
       state.currentPlayerRollCount = state.currentPlayerRollCount + 1
     })

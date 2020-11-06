@@ -34,6 +34,7 @@ class GameServer {
     /** @type {RulesPipeline} */
     pipeline: undefined,
   }
+  __mechanics = {}
 
   __running = false
 
@@ -82,6 +83,19 @@ class GameServer {
     return this
   }
 
+  /**
+   * @param  {...Mechanic} mechanics
+   */
+  useMechanics(...mechanics) {
+    for (let mechanic of mechanics) {
+      for (let hook of mechanic.actionHooks) {
+        this.__mechanics[hook] = this.__mechanics[hook] || []
+        this.__mechanics[hook].push(mechanic)
+      }
+    }
+    return this
+  }
+
   useState(protoFilename, packageName, initialValue) {
     this.__state.resolver = () =>
       loadStateAsync(protoFilename, packageName).then((State) => {
@@ -112,7 +126,9 @@ class GameServer {
     this.__actions.package = await this.__actions.resolver()
     this.__state.definition = await this.__state.resolver()
     // Setup a new game state
-    this.__state.current = this.__state.initial
+    const State = this.__state.definition
+    const message = State.create(this.__state.initial)
+    this.__state.current = State.decode(State.encode(message).finish())
     this.__servers.push(
       this.__sockets.listen(this.__socketPort),
       this.__sockets.listen(this.__apiPort)

@@ -20,6 +20,6 @@ message State {
     int32 round_number = 1;
     string current_player_id = 2;
     int32 current_player_roll_count = 3;
-    DiceState DiceNumbers = 4;
-    repeated ScoreCard PlayerScores = 5;
+    DiceState dice_numbers = 4;
+    repeated ScoreCard player_scores = 5;
 }
