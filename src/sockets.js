@@ -43,12 +43,14 @@ function createSocketRouter(
       return
     }
     const Game = await GameRegistry.get(gameId)
-    const revoke = await Game.connect((buffer) => {
+    const revoke = await Game.connect(async (buffer) => {
       // Read the buffer
       const state = StateDefinition.decode(buffer)
       // Mask it
       const mutate = (mutation) => mutation(state)
-      Masks.forEach((mask) => mask({ User: state.user, mutate }))
+      await Masks.reduce((chain, mask) => {
+        return chain.then(() => mask({ User: state.user, mutate }))
+      }, Promise.resolve())
       // Encode new message
       const outputBuffer = StateDefinition.encode(state).finish()
       websocket.send(outputBuffer)

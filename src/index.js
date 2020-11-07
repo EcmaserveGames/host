@@ -11,6 +11,7 @@ const { createApiRouter } = require('./api')
 const { createSocketRouter } = require('./sockets')
 const { GameRegistry } = require('./game')
 const { MemoryStorage } = require('./memory_storage')
+const { Mechanic } = require('./mechanics')
 
 const defaultApiPort = 4443
 const defaultSocketPort = 5252
@@ -34,6 +35,7 @@ class GameServer {
   addProtoFiles(...protoFilenames) {
     const resolvers = protoFilenames.map((fn) => () => loadProtobufAsync(fn))
     this.__dependencyResolvers.push(...resolvers)
+    return this
   }
 
   useActions(protoFilename, packageName) {
@@ -146,4 +148,6 @@ module.exports = {
   GameServer,
   defaultApiPort,
   defaultSocketPort,
+  Rule,
+  Mechanic,
 }

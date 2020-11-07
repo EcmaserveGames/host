@@ -1,12 +1,13 @@
 {
   "name": "@ecmaservegames/host",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A host server for a game.",
   "engines": {
     "node": ">=14.15"
   },
   "main": "src/index.js",
   "files": [
+    "**/*.d.ts",
     "src/**/*"
   ],
   "scripts": {
@@ -43,6 +44,7 @@
   },
   "devDependencies": {
     "@cucumber/cucumber": "^7.0.0-rc.0",
+    "@types/koa": "^2.11.6",
     "koa-jwt": "^4.0.0",
     "nyc": "^15.1.0",
     "prettier": "2.1.2",
