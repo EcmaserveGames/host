@@ -6,7 +6,8 @@ function createSocketRouter(
   ActionsDefinition,
   GameRegistry,
   RulesPipeline,
-  Mechanics
+  Mechanics,
+  Masks
 ) {
   const socketRouter = new Router()
   socketRouter.all('/games/:id/actions', async ({ websocket, params }) => {
@@ -38,7 +39,17 @@ function createSocketRouter(
       return
     }
     const Game = await GameRegistry.get(gameId)
-    await Game.connect(websocket)
+    const revoke = await Game.connect((buffer) => {
+      // Read the buffer
+      const state = StateDefinition.decode(buffer)
+      // Mask it
+      const mutate = (mutation) => mutation(state)
+      Masks.forEach((mask) => mask({ mutate }))
+      // Encode new message
+      const outputBuffer = StateDefinition.encode(state).finish()
+      websocket.send(outputBuffer)
+    })
+    websocket.on('close', revoke)
   })
   return socketRouter
 }

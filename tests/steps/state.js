@@ -5,6 +5,7 @@ const {
   getLastCreatedGame,
   getInitialGameStateBuffer,
   getLastGameStateBuffer,
+  getGameStateFromBuffer,
 } = require('./setup')
 const protobuf = require('protobufjs')
 const path = require('path')
@@ -61,6 +62,12 @@ Then('the game state is emitted on all connections', function () {
       clearInterval(interval)
     }
   }, 2)
+})
+
+Then('private game state can be hidden', async function () {
+  const gameState = await getGameStateFromBuffer(getLastGameStateBuffer())
+  if (gameState.secretValue)
+    throw new Error('secretValue should not be published')
 })
 
 module.exports = {}

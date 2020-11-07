@@ -22,4 +22,5 @@ message State {
     int32 current_player_roll_count = 3;
     DiceState dice_numbers = 4;
     repeated ScoreCard player_scores = 5;
+    string secret_value = 6;
 }

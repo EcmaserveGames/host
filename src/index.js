@@ -25,6 +25,7 @@ class GameServer {
   __actionsResolver = undefined
   __stateResolver = undefined
   __initialGameState = undefined
+  __stateMasks = []
   __rules = []
   __mechanics = {}
   __running = false
@@ -71,6 +72,11 @@ class GameServer {
     return this
   }
 
+  useStateMask(...stateMasks) {
+    this.__stateMasks = this.__stateMasks.concat(stateMasks)
+    return this
+  }
+
   async run() {
     if (this.__running) {
       throw new Error('Server is already running')
@@ -97,17 +103,18 @@ class GameServer {
       ActionsDefinition,
       gameRegistry,
       rulesPipeline,
-      this.__mechanics
+      this.__mechanics,
+      this.__stateMasks
     )
     const apiRouter = createApiRouter(gameRegistry)
 
     const host = websockify(new Koa())
     host.use(apiRouter.routes())
     host.ws.use(socketRouter.routes())
-    this.__servers.push(
+    this.__servers = [
       host.listen(this.__socketPort),
-      host.listen(this.__apiPort)
-    )
+      host.listen(this.__apiPort),
+    ]
     this.__servers.forEach(enableDestroy)
     this.__running = true
     return this

@@ -56,21 +56,21 @@ class Game {
     return game.buffer
   }
 
-  async connect(websocket) {
-    this.__connections.push(websocket)
-    websocket.on('close', () => {
-      const websocketIndex = this.__connections.indexOf(websocket)
-      this.__connections.splice(websocketIndex, 1)
-    })
+  async connect(emitter) {
+    this.__connections.push(emitter)
     const buffer = await this.getStateBuffer()
-    websocket.send(buffer)
+    emitter(buffer)
+    return () => {
+      const connectionIndex = this.__connections.indexOf(emitter)
+      this.__connections.splice(connectionIndex, 1)
+    }
   }
 
   async commit(newStateBuffer) {
     // persist to storage engine
     await this.__storage.update(this.__id, this.toObject(newStateBuffer))
     // Update all connections
-    this.__connections.forEach((c) => c.send(newStateBuffer))
+    this.__connections.forEach((emit) => emit(newStateBuffer))
     return this
   }
 

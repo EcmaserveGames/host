@@ -19,6 +19,10 @@ const createGameServer = () => {
       },
       roundNumber: 0,
       currentPlayerId: 'player-1',
+      secretValue: 'do not reveal',
+    })
+    .useStateMask((ctx) => {
+      ctx.mutate((state) => (state.secretValue = null))
     })
 }
 

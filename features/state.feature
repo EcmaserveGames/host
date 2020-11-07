@@ -9,4 +9,9 @@ Feature: State
         When an action is performed
         Then the game state is emitted on all connections
 
-    
+    Scenario: Game State can be masked from connected participants
+        Given a client creates a new game
+        And the client is receiving game state messages
+        When an action is performed
+        And the game state is emitted on all connections
+        Then private game state can be hidden
