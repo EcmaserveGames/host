@@ -22,7 +22,7 @@ async function performAction(
   const accepted = rules.ruleResults.every((r) => r.result)
 
   if (accepted) {
-    state = await __applyMechanicsToState(Actions, state, Mechanics)
+    state = await __applyMechanicsToState(Actions, state, Mechanics, User)
     // Run the rule specific mutations
     state = await rules.performMutations(state)
 

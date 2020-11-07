@@ -2,6 +2,7 @@
  * @typedef {Object} MechanicContext
  * @property {any} actions
  * @property {any} gameState
+ * @property {any} user
  *
  * @callback MechanicMiddleware
  * @param {MechanicContext} ctx
@@ -60,7 +61,7 @@ class Mechanic {
  * @param {any} gameState
  * @param {object} mechanics
  */
-async function __applyMechanicsToState(actions, gameState, mechanics) {
+async function __applyMechanicsToState(actions, gameState, mechanics, user) {
   const actionMechanics = mechanics[actions.Action]
   if (!actionMechanics) {
     return gameState
@@ -68,7 +69,7 @@ async function __applyMechanicsToState(actions, gameState, mechanics) {
 
   return Promise.all(
     actionMechanics.map(
-      async (mechanic) => await mechanic.__mutate({ actions, gameState })
+      async (mechanic) => await mechanic.__mutate({ actions, gameState, user })
     )
   ).then(() => gameState)
 }
