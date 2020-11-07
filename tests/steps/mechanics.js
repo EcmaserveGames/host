@@ -1,7 +1,7 @@
 const { Then } = require('@cucumber/cucumber')
 const path = require('path')
 const { loadStateAsync } = require('../../src/loadProtobufAsync')
-const { getLastGameStateBuffer } = require('./state')
+const { getLastGameStateBuffer } = require('./setup')
 const { getActionsSocket } = require('./action')
 
 const getNextActionResponsePromise = () => {

@@ -10,37 +10,28 @@ async function createActionResponse(accepted, ruleResults) {
   return ActionResponse.encode(message).finish()
 }
 
-/**
- * @this {import("./").GameServer} the instance of game server
- * @param {WebSocket} websocket The websocket that the action was received on
- * @param {*} actions the protobuf Actions type
- * @param {*} binary the binary message data
- */
-async function performAction(websocket, actions, binary) {
-  const Actions = actions.decode(binary)
-  let state =
-    this.__state.current ||
-    this.__state.initial ||
-    this.__state.definition.create()
+async function performAction(
+  binary,
+  { Game, RulesPipeline, ActionsDefinition, StateDefinition, Mechanics }
+) {
+  const stateBuffer = await Game.getStateBuffer()
+  let state = StateDefinition.decode(stateBuffer)
+  const Actions = ActionsDefinition.decode(binary)
   /// Run Rules
-  const rules = await this.__rules.pipeline.run(Actions, state)
+  const rules = await RulesPipeline.run(Actions, state)
   const accepted = rules.ruleResults.every((r) => r.result)
+
   if (accepted) {
-    state = await __applyMechanicsToState(Actions, state, this.__mechanics)
+    state = await __applyMechanicsToState(Actions, state, Mechanics)
     // Run the rule specific mutations
     state = await rules.performMutations(state)
+
+    await Game.commit(StateDefinition.encode(state).finish())
   }
-
-  const buffer = await createActionResponse(accepted, rules.ruleResults)
-  websocket.send(buffer)
-
-  /// Push new Game State
-  this.__state.current = state
-  this.__state.connections.forEach((c) => {
-    c.send(this.__state.definition.encode(state).finish())
-  })
+  return [accepted, rules.ruleResults]
 }
 
 module.exports = {
   performAction,
+  createActionResponse,
 }

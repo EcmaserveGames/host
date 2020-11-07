@@ -1,29 +1,11 @@
 const { When, Then } = require('@cucumber/cucumber')
 const path = require('path')
-const { getActionsSocket } = require('./action')
-const { getLastGameStateBuffer } = require('./state')
+const { getActionsSocket, getNextActionResponsePromise } = require('./action')
+const { getLastGameStateBuffer, getGameStateFromBuffer } = require('./setup')
 const {
-  loadStateAsync,
   loadActionsAsync,
   loadActionResponseAsync,
 } = require('../../src/loadProtobufAsync')
-
-const getNextActionResponsePromise = () => {
-  return new Promise((resolve) => {
-    const socket = getActionsSocket()
-    socket.addEventListener('message', (event) => resolve(event.data), {
-      once: true,
-    })
-  })
-}
-
-async function getGameStateFromBuffer(buffer) {
-  const GameState = await loadStateAsync(
-    path.resolve(__dirname, '../test-game/State.proto'),
-    'testgame'
-  )
-  return GameState.decode(buffer)
-}
 
 let startingState
 

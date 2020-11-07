@@ -5,5 +5,4 @@ Feature: Server Runtime
 
     Scenario: Server startup
         Given server is running
-        Then a websocket is available
-        And an API is available
+        Then an API is available

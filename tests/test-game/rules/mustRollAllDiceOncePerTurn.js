@@ -1,6 +1,6 @@
 const { Rule } = require('../../../src/rules')
 
-const rule = new Rule('mustRollOncePerTurn')
+const rule = new Rule('mustRollAllDiceOncePerTurn')
 rule.forActions('completeTurn', 'rollDice')
 rule.use(({ actions, gameState, mutate }) => {
   if (actions.rollDice) {

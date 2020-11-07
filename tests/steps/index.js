@@ -3,6 +3,7 @@ const action = require('./action')
 const state = require('./state')
 const rules = require('./rule')
 const mechanics = require('./mechanics')
+const game = require('./game')
 
 module.exports = {
   ...runtime,
@@ -10,4 +11,5 @@ module.exports = {
   ...state,
   ...rules,
   ...mechanics,
+  ...game,
 }

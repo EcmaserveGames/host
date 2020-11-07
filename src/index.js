@@ -6,9 +6,11 @@ const {
   loadActionsAsync,
   loadStateAsync,
 } = require('./loadProtobufAsync')
-const { performAction } = require('./performAction')
-const Router = require('@koa/router')
 const { Rule, RulesPipeline } = require('./rules')
+const { createApiRouter } = require('./api')
+const { createSocketRouter } = require('./sockets')
+const { GameRegistry } = require('./game')
+const { MemoryStorage } = require('./memory_storage')
 
 const defaultApiPort = 4443
 const defaultSocketPort = 5252
@@ -16,62 +18,24 @@ const defaultSocketPort = 5252
 class GameServer {
   __apiPort = defaultApiPort
   __socketPort = defaultSocketPort
-  __api = new Koa()
-  __sockets = websockify(this.__api)
   __servers = []
-  __actions = {}
-  __state = {
-    resolver: undefined,
-    definition: undefined,
-    initial: undefined,
-    // TODO isolate for multi-game hosting
-    current: undefined,
-    connections: [],
-  }
-  __rules = {
-    /** @type {Rule[]} */
-    ruleset: [],
-    /** @type {RulesPipeline} */
-    pipeline: undefined,
-  }
+  __storage = new MemoryStorage()
+  __dependencyResolvers = []
+  __gameRegistry = undefined
+  __actionsResolver = undefined
+  __stateResolver = undefined
+  __initialGameState = undefined
+  __rules = []
   __mechanics = {}
-
   __running = false
 
-  constructor() {
-    const socketRouter = new Router()
-    socketRouter.all('/actions', ({ websocket }) => {
-      websocket.on(
-        'message',
-        performAction.bind(this, websocket, this.__actions.package)
-      )
-    })
-    socketRouter.all('/state', ({ websocket }) => {
-      this.__state.connections.push(websocket)
-      const state =
-        this.__state.current ||
-        this.__state.initial ||
-        this.__state.definition.create()
-      websocket.send(this.__state.definition.encode(state).finish())
-    })
-
-    this.__api.use((ctx, next) => {
-      ctx.body = 'Hello World'
-      next(ctx)
-    })
-    this.__sockets.ws.use(socketRouter.routes())
-  }
-
   addProtoFiles(...protoFilenames) {
-    this.__actions.orderProtoFileResolvers =
-      this.__actions.orderProtoFileResolvers || []
-    this.__actions.orderProtoFileResolvers.push(
-      Promise.all(protoFilenames.map(loadProtobufAsync))
-    )
+    const resolvers = protoFilenames.map((fn) => () => loadProtobufAsync(fn))
+    this.__dependencyResolvers.push(...resolvers)
   }
 
   useActions(protoFilename, packageName) {
-    this.__actions.resolver = () => loadActionsAsync(protoFilename, packageName)
+    this.__actionsResolver = () => loadActionsAsync(protoFilename, packageName)
     return this
   }
 
@@ -79,7 +43,7 @@ class GameServer {
    * @param  {...Rule} rules
    */
   useRules(...rules) {
-    this.__rules.ruleset = this.__rules.ruleset.concat(rules)
+    this.__rules = this.__rules.concat(rules)
     return this
   }
 
@@ -97,17 +61,62 @@ class GameServer {
   }
 
   useState(protoFilename, packageName, initialValue) {
-    this.__state.resolver = () =>
+    this.__stateResolver = () =>
       loadStateAsync(protoFilename, packageName).then((State) => {
         const err = State.verify(initialValue || {})
         if (err) throw err
-        this.__state.initial = State.create(initialValue)
+        this.__initialGameState = initialValue
         return State
       })
     return this
   }
 
+  async run() {
+    if (this.__running) {
+      throw new Error('Server is already running')
+    }
+    // Build a rules pipeline
+    const rulesPipeline = new RulesPipeline(this.__rules)
+
+    // Pull in protobuf dependencies
+    await Promise.all(this.__dependencyResolvers.map((func) => func()))
+
+    const [ActionsDefinition, StateDefinition] = await Promise.all([
+      this.__actionsResolver(),
+      this.__stateResolver(),
+    ])
+
+    const gameRegistry = new GameRegistry(
+      this.__storage,
+      StateDefinition,
+      this.__initialGameState
+    )
+
+    const socketRouter = createSocketRouter(
+      StateDefinition,
+      ActionsDefinition,
+      gameRegistry,
+      rulesPipeline,
+      this.__mechanics
+    )
+    const apiRouter = createApiRouter(gameRegistry)
+
+    const host = websockify(new Koa())
+    host.use(apiRouter.routes())
+    host.ws.use(socketRouter.routes())
+    this.__servers.push(
+      host.listen(this.__socketPort),
+      host.listen(this.__apiPort)
+    )
+    this.__servers.forEach(enableDestroy)
+    this.__running = true
+    return this
+  }
+
   async shutdown() {
+    if (!this.__running) {
+      throw new Error('Servers are not running')
+    }
     const closeOperations = this.__servers.map((s) => {
       return new Promise((resolve) => {
         s.on('close', resolve)
@@ -116,26 +125,6 @@ class GameServer {
     })
     await Promise.all(closeOperations)
     this.__running = false
-  }
-
-  async run() {
-    this.__rules.pipeline = new RulesPipeline(this.__rules.ruleset)
-    // Run before getting into type definitions specific to the game implementation
-    await Promise.all(this.__actions.orderProtoFileResolvers || [])
-    // TODO: Could be run in parallel
-    this.__actions.package = await this.__actions.resolver()
-    this.__state.definition = await this.__state.resolver()
-    // Setup a new game state
-    const State = this.__state.definition
-    const message = State.create(this.__state.initial)
-    this.__state.current = State.decode(State.encode(message).finish())
-    this.__servers.push(
-      this.__sockets.listen(this.__socketPort),
-      this.__sockets.listen(this.__apiPort)
-    )
-    this.__servers.forEach((s) => enableDestroy(s))
-    this.__running = true
-    return this
   }
 }
 
