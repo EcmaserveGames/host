@@ -141,6 +141,7 @@ class GameServer {
     })
     await Promise.all(closeOperations)
     this.__running = false
+    return this
   }
 }
 

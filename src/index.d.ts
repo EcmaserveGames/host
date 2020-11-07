@@ -69,5 +69,7 @@ declare module "@ecmaservegames/host" {
     useRules(...rules: Rule<TActions, TState, TUser>[]): GameServer<TState, TActions, TUser>
     useMechanics(...mechanics: Mechanic<TActions, TState>[]): GameServer<TState, TActions, TUser>
     useStateMask(...masks: StateMasks<TState, TUser>[]): GameServer<TState, TActions, TUser>
+    run(): Promise<GameServer<TState, TActions, TUser>>
+    shutdown(): Promise<GameServer<TState, TActions, TUser>>
   }
 }
