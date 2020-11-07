@@ -2,9 +2,13 @@
   "name": "@ecmaservegames/host",
   "version": "0.0.1",
   "description": "A host server for a game.",
-  "engines" : { "node" : ">=14.15" },
+  "engines": {
+    "node": ">=14.15"
+  },
   "main": "src/index.js",
-  "files": [ "src/**/*"],
+  "files": [
+    "src/**/*"
+  ],
   "scripts": {
     "start": "node test-game",
     "test": "nyc cucumber-js --publish-quiet"
