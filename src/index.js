@@ -29,6 +29,7 @@ class GameServer {
   __rules = []
   __mechanics = {}
   __running = false
+  __authenticationMiddleware
 
   addProtoFiles(...protoFilenames) {
     const resolvers = protoFilenames.map((fn) => () => loadProtobufAsync(fn))
@@ -77,6 +78,11 @@ class GameServer {
     return this
   }
 
+  useAuthentication(authenticationMiddleware) {
+    this.__authenticationMiddleware = authenticationMiddleware
+    return this
+  }
+
   async run() {
     if (this.__running) {
       throw new Error('Server is already running')
@@ -110,6 +116,7 @@ class GameServer {
 
     const host = websockify(new Koa())
     host.use(apiRouter.routes())
+    host.ws.use(this.__authenticationMiddleware)
     host.ws.use(socketRouter.routes())
     this.__servers = [
       host.listen(this.__socketPort),

@@ -10,28 +10,32 @@ function createSocketRouter(
   Masks
 ) {
   const socketRouter = new Router()
-  socketRouter.all('/games/:id/actions', async ({ websocket, params }) => {
-    const { id: gameId } = params
-    const hasGame = await GameRegistry.has(gameId)
-    if (!hasGame) {
-      websocket.close(1003)
-      return
-    }
-    websocket.on('message', async (message) => {
-      const Game = await GameRegistry.get(gameId)
-      const actionContext = {
-        Game,
-        RulesPipeline,
-        ActionsDefinition,
-        StateDefinition,
-        Mechanics,
+  socketRouter.all(
+    '/games/:id/actions',
+    async ({ websocket, params, state }) => {
+      const { id: gameId } = params
+      const hasGame = await GameRegistry.has(gameId)
+      if (!hasGame) {
+        websocket.close(1003)
+        return
       }
-      const result = await performAction(message, actionContext)
-      const buffer = await createActionResponse(...result)
-      websocket.send(buffer)
-    })
-  })
-  socketRouter.all('/games/:id/state', async ({ websocket, params }) => {
+      websocket.on('message', async (message) => {
+        const Game = await GameRegistry.get(gameId)
+        const actionContext = {
+          User: state.user,
+          Game,
+          RulesPipeline,
+          ActionsDefinition,
+          StateDefinition,
+          Mechanics,
+        }
+        const result = await performAction(message, actionContext)
+        const buffer = await createActionResponse(...result)
+        websocket.send(buffer)
+      })
+    }
+  )
+  socketRouter.all('/games/:id/state', async ({ websocket, params, state }) => {
     const { id: gameId } = params
     const hasGame = await GameRegistry.has(gameId)
     if (!hasGame) {
@@ -44,7 +48,7 @@ function createSocketRouter(
       const state = StateDefinition.decode(buffer)
       // Mask it
       const mutate = (mutation) => mutation(state)
-      Masks.forEach((mask) => mask({ mutate }))
+      Masks.forEach((mask) => mask({ User: state.user, mutate }))
       // Encode new message
       const outputBuffer = StateDefinition.encode(state).finish()
       websocket.send(outputBuffer)

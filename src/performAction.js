@@ -12,13 +12,13 @@ async function createActionResponse(accepted, ruleResults) {
 
 async function performAction(
   binary,
-  { Game, RulesPipeline, ActionsDefinition, StateDefinition, Mechanics }
+  { Game, RulesPipeline, ActionsDefinition, StateDefinition, Mechanics, User }
 ) {
   const stateBuffer = await Game.getStateBuffer()
   let state = StateDefinition.decode(stateBuffer)
   const Actions = ActionsDefinition.decode(binary)
   /// Run Rules
-  const rules = await RulesPipeline.run(Actions, state)
+  const rules = await RulesPipeline.run(Actions, state, User)
   const accepted = rules.ruleResults.every((r) => r.result)
 
   if (accepted) {

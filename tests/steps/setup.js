@@ -6,6 +6,7 @@ const { After, Before } = require('@cucumber/cucumber')
 /** ONLY FOR TYPE INFORMATION */
 const { createGameServer } = require('../test-game/game')
 const { loadStateAsync } = require('../../src/loadProtobufAsync')
+const { sampleToken } = require('../test-game/auth')
 
 let lastCreatedGame
 
@@ -45,8 +46,15 @@ async function createAGame() {
  * Will start the GameServer if necessary
  * @param {string} path The relative path on the server
  */
-const createSocketClientForPathAsync = (path) => {
-  const client = new WebSocket(`ws://localhost:${defaultSocketPort}${path}`)
+const createSocketClientForPathAsync = (path, socketOptions) => {
+  const client = new WebSocket(
+    `ws://localhost:${defaultSocketPort}${path}`,
+    socketOptions || {
+      headers: {
+        Authorization: sampleToken,
+      },
+    }
+  )
   return {
     client,
     promise: new Promise(async (resolve, reject) => {

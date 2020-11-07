@@ -2,6 +2,7 @@ const { GameServer } = require('../../src')
 const path = require('path')
 const { DiceRoll } = require('./mechanics')
 const { ClockWiseTurnOrder, MustRollAllDiceOncePerTurn } = require('./rules')
+const { BearerAuth } = require('./auth')
 
 const createGameServer = () => {
   const game = new GameServer()
@@ -24,6 +25,7 @@ const createGameServer = () => {
     .useStateMask((ctx) => {
       ctx.mutate((state) => (state.secretValue = null))
     })
+    .useAuthentication(BearerAuth)
 }
 
 module.exports = {

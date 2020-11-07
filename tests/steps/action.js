@@ -11,6 +11,7 @@ const {
 
 /** FOR TYPES ONLY */
 const WebSocket = require('ws')
+const { sampleToken } = require('../test-game/auth')
 
 /** @type {WebSocket} */
 let actionsSocket
@@ -26,7 +27,12 @@ const getNextActionResponsePromise = () => {
 Given('participant is connected to an actions socket', async function () {
   const game = getLastCreatedGame()
   const { client, promise } = createSocketClientForPathAsync(
-    game.relativePathActionsSocket
+    game.relativePathActionsSocket,
+    {
+      headers: {
+        ['Authorization']: `Bearer ${sampleToken}`,
+      },
+    }
   )
   actionsSocket = client
   await promise

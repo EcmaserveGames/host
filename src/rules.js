@@ -23,6 +23,7 @@
  * @property {RuleResult[]} ruleResults
  * @property {MutateGameState} mutate
  * @property {ExceptionToRule} exceptionTo
+ * @property {any} user
  *
  * @callback RuleMiddleware
  * @param {RuleContext} ctx
@@ -101,7 +102,7 @@ class RulesPipeline {
     }
   }
 
-  async run(actions, gameState) {
+  async run(actions, gameState, user) {
     // Figure out which action is being performed
     const action = actions.Action
     // Narrow down relevant rules
@@ -126,6 +127,7 @@ class RulesPipeline {
         }
         a
       },
+      user,
     }
 
     /** @type {Promise<RuleContext>} */
