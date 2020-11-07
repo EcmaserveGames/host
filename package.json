@@ -14,13 +14,15 @@
     "url": "git+https://github.com/EcmaserveGames/host.git"
   },
   "keywords": [
-    "board",
-    "games",
-    "board",
-    "game",
-    "host",
-    "server",
-    "turn-based"
+    "protobuf",
+    "board-game",
+    "game-engine",
+    "game-development",
+    "board-game-framework",
+    "protocol-buffers",
+    "game-server",
+    "gamestream",
+    "unidirectional"
   ],
   "author": "Ryan Hafer <ryan@theplasticbrick.com>",
   "license": "MIT",
