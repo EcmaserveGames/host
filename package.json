@@ -1,8 +1,9 @@
 {
   "name": "@ecmaservegames/host",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A host server for a game.",
   "main": "src/index.js",
+  "files": [ "src/**/*"],
   "scripts": {
     "start": "node test-game",
     "test": "nyc cucumber-js --publish-quiet"

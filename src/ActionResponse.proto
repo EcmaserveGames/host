@@ -1,4 +1,3 @@
-// awesome.proto
 package ecmaservegames.host;
 syntax = "proto3";
 

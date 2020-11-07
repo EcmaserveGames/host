@@ -1,4 +1,3 @@
-// awesome.proto
 package testgame;
 syntax = "proto3";
 
