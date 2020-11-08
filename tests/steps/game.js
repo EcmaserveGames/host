@@ -1,4 +1,5 @@
 const { When, Then } = require('@cucumber/cucumber')
+const http = require('http')
 const {
   getServerInstance,
   createSocketClientForPathAsync,
@@ -39,4 +40,39 @@ Then('the game state is persisted', async function () {
   const gameState = await getGameStateFromBuffer(getLastGameStateBuffer())
   if (gameState.diceNumbers.dice1 === 0)
     throw new Error('did not persist last roll!')
+})
+
+Then('there that game can be joined', async function () {
+  const {
+    id,
+    relativePathActionsSocket,
+    relativePathStateSocket,
+  } = getLastCreatedGame()
+  const gameResponse = await new Promise((resolve, reject) => {
+    const request = http.request(
+      {
+        hostname: 'localhost',
+        port: 4443,
+        path: `/games/${id}`,
+        method: 'GET',
+      },
+      (res) => {
+        let data = ''
+        res.setEncoding('utf8')
+        res.on('data', (chunk) => {
+          data += chunk
+        })
+        res.on('end', () => {
+          resolve(JSON.parse(data))
+        })
+      }
+    )
+    request.on('error', reject)
+    request.end()
+  })
+  if (
+    gameResponse.relativePathStateSocket !== relativePathStateSocket ||
+    gameResponse.relativePathActionsSocket !== relativePathActionsSocket
+  )
+    throw new Error('not the same game returned')
 })

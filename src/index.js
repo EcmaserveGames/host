@@ -1,6 +1,7 @@
 const Koa = require('koa')
 const websockify = require('koa-websocket')
 const enableDestroy = require('server-destroy')
+const debug = require('./debug')
 const {
   loadProtobufAsync,
   loadActionsAsync,
@@ -144,10 +145,10 @@ class GameServer {
 
     const apiServerAddress = this.__servers[1].address()
     const socketServerAddress = this.__servers[0].address()
-    console.info(
+    debug(
       `API available at ${apiServerAddress.address}${apiServerAddress.port}`
     )
-    console.info(
+    debug(
       `Web sockets available at ${socketServerAddress.address}${socketServerAddress.port}`
     )
 

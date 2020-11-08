@@ -1,6 +1,6 @@
 {
   "name": "@ecmaservegames/host",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A host server for a game.",
   "engines": {
     "node": ">=14.15"
@@ -37,6 +37,7 @@
   "homepage": "https://github.com/EcmaserveGames/host#readme",
   "dependencies": {
     "@koa/router": "^9.4.0",
+    "debug": "^4.2.0",
     "koa": "^2.13.0",
     "koa-websocket": "^6.0.0",
     "protobufjs": "^6.10.1",

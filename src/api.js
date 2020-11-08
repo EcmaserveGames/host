@@ -12,6 +12,20 @@ function createApiRouter(GameRegistry, configureRouter) {
     }
   })
 
+  router.get('/games/:id', async (ctx) => {
+    const { params } = ctx
+    try {
+      const game = await GameRegistry.get(params.id)
+      ctx.body = {
+        id: game.id,
+        relativePathActionsSocket: `/games/${game.id}/actions`,
+        relativePathStateSocket: `/games/${game.id}/state`,
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  })
+
   if (configureRouter) {
     configureRouter(router)
   } else {

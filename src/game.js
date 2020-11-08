@@ -51,6 +51,10 @@ class Game {
     this.__storage = StorageEngine
   }
 
+  get id() {
+    return this.__id
+  }
+
   async getStateBuffer() {
     const game = await this.__storage.read(this.__id)
     return game.buffer

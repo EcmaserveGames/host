@@ -8,6 +8,10 @@ Feature: Games
         Then a game instance id is returned
         And that game is available on a websocket
 
+    Scenario: A game can be joined by API
+        When a client creates a new game
+        Then there that game can be joined
+
     Scenario: Game state can be persisted
         Given a client creates a new game
         And participant is connected to an actions socket

@@ -57,7 +57,7 @@ declare module "@ecmaservegames/host" {
 
   export type StateMasks<TState extends GameStateConstraint, TUser extends UserConstraint> = (context: {
     User: TUser,
-    mutate(mutation: GameStateMutation<TState>): void | Promis<void>
+    mutate(mutation: GameStateMutation<TState>): void | Promise<void>
   }) => void | Promise<void>
 
   export class GameServer<
@@ -76,5 +76,12 @@ declare module "@ecmaservegames/host" {
     addMiddleware(configureMiddleware: (app: Application) => void): GameServer<TState, TActions, TUser>
     run(): Promise<GameServer<TState, TActions, TUser>>
     shutdown(): Promise<GameServer<TState, TActions, TUser>>
+  }
+
+  export interface GameResponse
+  {
+    id: string
+    relativePathActionsSocket: string
+    relativePathStateSocket: string
   }
 }
