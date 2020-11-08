@@ -31,6 +31,7 @@ class GameServer {
   __mechanics = {}
   __running = false
   __authenticationMiddleware
+  __configureRouter
 
   addProtoFiles(...protoFilenames) {
     const resolvers = protoFilenames.map((fn) => () => loadProtobufAsync(fn))
@@ -85,6 +86,11 @@ class GameServer {
     return this
   }
 
+  addRoutes(routerConfigurationCallback) {
+    this.__configureRouter = routerConfigurationCallback
+    return this
+  }
+
   async run() {
     if (this.__running) {
       throw new Error('Server is already running')
@@ -114,7 +120,7 @@ class GameServer {
       this.__mechanics,
       this.__stateMasks
     )
-    const apiRouter = createApiRouter(gameRegistry)
+    const apiRouter = createApiRouter(gameRegistry, this.__configureRouter)
 
     const host = websockify(new Koa())
     host.use(apiRouter.routes())

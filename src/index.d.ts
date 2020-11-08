@@ -1,4 +1,5 @@
 declare module "@ecmaservegames/host" {
+  import Router from '@koa/router'
   import Application from 'koa'
   export type ActionsConstraint = {}
   export type GameStateConstraint = {}
@@ -71,6 +72,7 @@ declare module "@ecmaservegames/host" {
     useRules(...rules: Rule<TActions, TState, TUser>[]): GameServer<TState, TActions, TUser>
     useMechanics(...mechanics: Mechanic<TActions, TState, TUser>[]): GameServer<TState, TActions, TUser>
     useStateMask(...masks: StateMasks<TState, TUser>[]): GameServer<TState, TActions, TUser>
+    addRoutes(routerConfigurationCallback: (router: Router) => void): GameServer<TState, TActions, TUser>
     run(): Promise<GameServer<TState, TActions, TUser>>
     shutdown(): Promise<GameServer<TState, TActions, TUser>>
   }

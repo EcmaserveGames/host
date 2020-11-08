@@ -26,6 +26,11 @@ const createGameServer = () => {
       ctx.mutate((state) => (state.secretValue = null))
     })
     .useAuthentication(BearerAuth)
+    .addRoutes((router) => {
+      router.get('/', (ctx) => {
+        ctx.body = 'MY CUSTOM SITE'
+      })
+    })
 }
 
 module.exports = {

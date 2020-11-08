@@ -6,3 +6,7 @@ Feature: Server Runtime
     Scenario: Server startup
         Given server is running
         Then an API is available
+
+    Scenario: Server can add custom routes
+        Given server is running
+        Then the game can provide their own routes

@@ -1,6 +1,6 @@
 const Router = require('@koa/router')
 
-function createApiRouter(GameRegistry) {
+function createApiRouter(GameRegistry, configureRouter) {
   const router = new Router()
 
   router.post('/games', async (ctx) => {
@@ -12,9 +12,14 @@ function createApiRouter(GameRegistry) {
     }
   })
 
-  router.get('/', (ctx) => {
-    ctx.body = 'OK'
-  })
+  if (configureRouter) {
+    configureRouter(router)
+  } else {
+    router.get('/', (ctx) => {
+      ctx.body = 'OK'
+    })
+  }
+
   return router
 }
 
