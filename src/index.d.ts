@@ -73,6 +73,7 @@ declare module "@ecmaservegames/host" {
     useMechanics(...mechanics: Mechanic<TActions, TState, TUser>[]): GameServer<TState, TActions, TUser>
     useStateMask(...masks: StateMasks<TState, TUser>[]): GameServer<TState, TActions, TUser>
     addRoutes(routerConfigurationCallback: (router: Router) => void): GameServer<TState, TActions, TUser>
+    addMiddleware(configureMiddleware: (app: Application) => void): GameServer<TState, TActions, TUser>
     run(): Promise<GameServer<TState, TActions, TUser>>
     shutdown(): Promise<GameServer<TState, TActions, TUser>>
   }

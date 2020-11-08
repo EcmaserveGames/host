@@ -32,6 +32,7 @@ class GameServer {
   __running = false
   __authenticationMiddleware
   __configureRouter
+  __configureMiddleware
 
   addProtoFiles(...protoFilenames) {
     const resolvers = protoFilenames.map((fn) => () => loadProtobufAsync(fn))
@@ -91,6 +92,11 @@ class GameServer {
     return this
   }
 
+  addMiddleware(appliationConfigurationCallback) {
+    this.__configureMiddleware = appliationConfigurationCallback
+    return this
+  }
+
   async run() {
     if (this.__running) {
       throw new Error('Server is already running')
@@ -123,6 +129,9 @@ class GameServer {
     const apiRouter = createApiRouter(gameRegistry, this.__configureRouter)
 
     const host = websockify(new Koa())
+    if (this.__configureMiddleware) {
+      this.__configureMiddleware(host)
+    }
     host.use(apiRouter.routes())
     host.ws.use(this.__authenticationMiddleware)
     host.ws.use(socketRouter.routes())
@@ -132,6 +141,16 @@ class GameServer {
     ]
     this.__servers.forEach(enableDestroy)
     this.__running = true
+
+    const apiServerAddress = this.__servers[1].address()
+    const socketServerAddress = this.__servers[0].address()
+    console.info(
+      `API available at ${apiServerAddress.address}${apiServerAddress.port}`
+    )
+    console.info(
+      `Web sockets available at ${socketServerAddress.address}${socketServerAddress.port}`
+    )
+
     return this
   }
 
