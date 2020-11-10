@@ -13,7 +13,7 @@ let actionResponseResolver
 async function loadActionResponseAsync() {
   actionResponseResolver =
     actionResponseResolver ||
-    loadProtobufAsync(path.resolve(__dirname, './ActionResponse.proto'))
+    loadProtobufAsync(path.resolve(__dirname, '../proto/ActionResponse.proto'))
   const root = await actionResponseResolver
   return root.lookupType('ecmaservegames.host.ActionResponse')
 }

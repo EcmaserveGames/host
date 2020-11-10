@@ -36,7 +36,11 @@ function createSocketRouter(
           Mechanics,
         }
         const result = await performAction(message, actionContext)
-        const buffer = await createActionResponse(...result)
+        const buffer = await createActionResponse(
+          ...result,
+          ActionsDefinition,
+          message
+        )
         websocket.send(buffer)
       })
     }

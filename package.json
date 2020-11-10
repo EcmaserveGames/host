@@ -1,19 +1,27 @@
 {
   "name": "@ecmaservegames/host",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A host server for a game.",
   "engines": {
     "node": ">=14.15"
   },
   "main": "src/index.js",
   "files": [
+    "proto",
     "**/*.d.ts",
     "src/**/*"
   ],
   "scripts": {
     "start": "node test-game",
-    "test": "nyc cucumber-js --publish-quiet"
+    "test": "nyc cucumber-js --publish-quiet",
+    "compile": "npm run compile:proto && npm run compile:proto:types",
+    "compile:proto": "pbjs -t static-module -w commonjs -o proto/index.js proto/ActionResponse.proto",
+    "compile:proto:types": "pbjs -t static-module proto/ActionResponse.proto | pbts -o proto/index.d.ts -"
   },
+  "pre-commit": [
+    "compile:proto",
+    "compile:proto:types"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/EcmaserveGames/host.git"
@@ -40,6 +48,7 @@
     "debug": "^4.2.0",
     "koa": "^2.13.0",
     "koa-websocket": "^6.0.0",
+    "pre-commit": "^1.2.2",
     "protobufjs": "^6.10.1",
     "server-destroy": "^1.0.1"
   },

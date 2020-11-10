@@ -2,11 +2,20 @@ const { loadActionResponseAsync } = require('./loadProtobufAsync')
 const { __applyMechanicsToState } = require('./mechanics')
 const debug = require('./debug')
 
-async function createActionResponse(accepted, ruleResults) {
+async function createActionResponse(
+  accepted,
+  ruleResults,
+  ActionsDefinition,
+  originalBuffer
+) {
   const ActionResponse = await loadActionResponseAsync()
   const message = ActionResponse.create({
     accepted,
     ruleResults,
+    action: {
+      type_url: ActionsDefinition.toString(),
+      value: originalBuffer,
+    },
   })
   return ActionResponse.encode(message).finish()
 }
