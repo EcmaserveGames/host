@@ -1,5 +1,6 @@
 const { loadActionResponseAsync } = require('./loadProtobufAsync')
 const { __applyMechanicsToState } = require('./mechanics')
+const debug = require('./debug')
 
 async function createActionResponse(accepted, ruleResults) {
   const ActionResponse = await loadActionResponseAsync()
@@ -27,6 +28,9 @@ async function performAction(
     state = await rules.performMutations(state)
 
     await Game.commit(StateDefinition.encode(state).finish())
+  }
+  if (!accepted) {
+    debug(rules.ruleResults)
   }
   return [accepted, rules.ruleResults]
 }

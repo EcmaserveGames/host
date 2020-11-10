@@ -1,5 +1,6 @@
 const { performAction, createActionResponse } = require('./performAction')
 const Router = require('@koa/router')
+const debug = require('./debug')
 
 function createSocketRouter(
   StateDefinition,
@@ -20,6 +21,11 @@ function createSocketRouter(
         return
       }
       websocket.on('message', async (message) => {
+        if (!(message instanceof Buffer)) {
+          // This is not a protobuf message and can be ignored;
+          debug('Actions message ignored')
+          return
+        }
         const Game = await GameRegistry.get(gameId)
         const actionContext = {
           User: state.user,
@@ -35,28 +41,31 @@ function createSocketRouter(
       })
     }
   )
-  socketRouter.all('/games/:id/state', async ({ websocket, params, state }) => {
-    const { id: gameId } = params
-    const hasGame = await GameRegistry.has(gameId)
-    if (!hasGame) {
-      websocket.close(1003)
-      return
+  socketRouter.all(
+    '/games/:id/state',
+    async ({ websocket, params, state: connectionState }) => {
+      const { id: gameId } = params
+      const hasGame = await GameRegistry.has(gameId)
+      if (!hasGame) {
+        websocket.close(1003)
+        return
+      }
+      const Game = await GameRegistry.get(gameId)
+      const revoke = await Game.connect(async (buffer) => {
+        // Read the buffer
+        const state = StateDefinition.decode(buffer)
+        // Mask it
+        const mutate = (mutation) => mutation(state)
+        await Masks.reduce((chain, mask) => {
+          return chain.then(() => mask({ User: connectionState.user, mutate }))
+        }, Promise.resolve())
+        // Encode new message
+        const outputBuffer = StateDefinition.encode(state).finish()
+        websocket.send(outputBuffer)
+      })
+      websocket.on('close', revoke)
     }
-    const Game = await GameRegistry.get(gameId)
-    const revoke = await Game.connect(async (buffer) => {
-      // Read the buffer
-      const state = StateDefinition.decode(buffer)
-      // Mask it
-      const mutate = (mutation) => mutation(state)
-      await Masks.reduce((chain, mask) => {
-        return chain.then(() => mask({ User: state.user, mutate }))
-      }, Promise.resolve())
-      // Encode new message
-      const outputBuffer = StateDefinition.encode(state).finish()
-      websocket.send(outputBuffer)
-    })
-    websocket.on('close', revoke)
-  })
+  )
   return socketRouter
 }
 module.exports = {
