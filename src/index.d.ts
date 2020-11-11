@@ -60,11 +60,17 @@ declare module "@ecmaservegames/host" {
     mutate(mutation: GameStateMutation<TState>): void | Promise<void>
   }) => void | Promise<void>
 
+  export interface GameServerOptions
+  {
+    port?: number;
+  }
+
   export class GameServer<
     TState extends GameStateConstraint,
     TActions extends ActionsConstraint,
     TUser extends UserConstraint
-  > {
+    > {
+    constructor(options?: GameServerOptions)
     useState<TStateDefinition>(protoFilename: string, packageName: string, initialState: TStateDefinition): GameServer<TStateDefinition, TActions, TUser>
     useActions<TActionsDefinition>(protoFilename: string, packageName: string): GameServer<TState, TActionsDefinition, TUser>
     useAuthentication<TUserDefinition>(userAuthenticationMiddleware: UserAuthenticationMiddleware<TUserDefinition>): GameServer<TState, TActions, TUserDefinition>
