@@ -1,6 +1,6 @@
 {
   "name": "@ecmaservegames/host",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "A host server for a game.",
   "engines": {
     "node": ">=14.15"

@@ -14,12 +14,10 @@ const { GameRegistry } = require('./game')
 const { MemoryStorage } = require('./memory_storage')
 const { Mechanic } = require('./mechanics')
 
-const defaultApiPort = 4443
-const defaultSocketPort = 5252
+const defaultPort = 4443
 
 class GameServer {
-  __apiPort = defaultApiPort
-  __socketPort = defaultSocketPort
+  __port = defaultPort
   __servers = []
   __storage = new MemoryStorage()
   __dependencyResolvers = []
@@ -34,6 +32,16 @@ class GameServer {
   __authenticationMiddleware
   __configureRouter
   __configureMiddleware
+
+  /**
+   *
+   * @param {object} options
+   * @param {number} options.port
+   */
+  constructor(options) {
+    options = options || {}
+    this.__port = options.port || defaultPort
+  }
 
   addProtoFiles(...protoFilenames) {
     const resolvers = protoFilenames.map((fn) => () => loadProtobufAsync(fn))
@@ -136,21 +144,12 @@ class GameServer {
     host.use(apiRouter.routes())
     host.ws.use(this.__authenticationMiddleware)
     host.ws.use(socketRouter.routes())
-    this.__servers = [
-      host.listen(this.__socketPort),
-      host.listen(this.__apiPort),
-    ]
+    this.__servers = [host.listen(this.__port)]
     this.__servers.forEach(enableDestroy)
     this.__running = true
 
-    const apiServerAddress = this.__servers[1].address()
-    const socketServerAddress = this.__servers[0].address()
-    debug(
-      `API available at ${apiServerAddress.address}${apiServerAddress.port}`
-    )
-    debug(
-      `Web sockets available at ${socketServerAddress.address}${socketServerAddress.port}`
-    )
+    const address = this.__servers[0].address()
+    debug(`Listening at ${address.address}${address.port}`)
 
     return this
   }
@@ -173,8 +172,7 @@ class GameServer {
 
 module.exports = {
   GameServer,
-  defaultApiPort,
-  defaultSocketPort,
+  defaultPort,
   Rule,
   Mechanic,
 }

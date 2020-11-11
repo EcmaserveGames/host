@@ -1,4 +1,4 @@
-const { defaultSocketPort } = require('../../src')
+const { defaultPort } = require('../../src')
 const WebSocket = require('ws')
 const http = require('http')
 const path = require('path')
@@ -48,7 +48,7 @@ async function createAGame() {
  */
 const createSocketClientForPathAsync = (path, socketOptions) => {
   const client = new WebSocket(
-    `ws://localhost:${defaultSocketPort}${path}`,
+    `ws://localhost:${defaultPort}${path}`,
     socketOptions || {
       headers: {
         Authorization: sampleToken,
